@@ -1,5 +1,25 @@
 package token
 
+var keywords = map[string]TokenType{
+	"fn":  FUNCTION,
+	"let": LET,
+}
+
+// LookupIdent checks the keywords table to see whether the given identifier
+// is in fact a keyword. If it is, it returns the keyword's TokenType constant.
+// If it isn't, we just get back token.IDENT, which is the TokenType for all 
+// user-defined identifiers.
+func LookupIdent(ident string) TokenType {
+	if tok, ok := keywords[ident]; ok {
+		return tok
+	}
+	return IDENT
+}
+
+// TokenType is defined as a string type. That allows us to use many different 
+// values as TokenTypes, which in turn allows us to disinguish between different
+// types of tokens. Using string also has the advantage of being easy to debug 
+// without a lot of boilerplate and helper functions: we can just print a string.
 type TokenType string
 
 type Token struct {
@@ -13,7 +33,7 @@ const (
 
 	// Identifiers + literals
 	IDENT = "IDENT" // add, foobar, x, y, ...
-	INT   = "INT" // 1343456
+	INT   = "INT"   // 1343456
 
 	// Operators
 	ASSIGN = "="
