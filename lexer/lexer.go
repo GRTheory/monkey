@@ -28,6 +28,8 @@ func (l *Lexer) readChar() {
 func (l *Lexer) NextToken() token.Token {
 	var tok token.Token
 
+	l.skipWhitespace()
+
 	switch l.ch {
 	case '=':
 		tok = newToken(token.ASSIGN, l.ch)
@@ -51,8 +53,13 @@ func (l *Lexer) NextToken() token.Token {
 	default:
 		if isLetter(l.ch) {
 			tok.Literal = l.readIndentifier()
+			tok.Type = token.LookupIdent(tok.Literal)
 			return tok
-		} else {
+		} else if isDigit(l.ch) {
+			tok.Type = token.INT
+			tok.Literal = l.readNumber()
+			return tok
+		}else {
 			tok = newToken(token.ILLEGAL, l.ch)
 		}
 	}
@@ -68,6 +75,31 @@ func (l *Lexer) readIndentifier() string {
 		l.readChar()
 	}
 	return l.input[position:l.position]
+}
+
+// skipWhitespace is a little helper to skip over some meaningless characters
+// entirely.
+// parsing step later on a little easier.
+func (l *Lexer) skipWhitespace() {
+	for l.ch == ' ' || l.ch == '\t' || l.ch == '\n' || l.ch == '\r' {
+		l.readChar()
+	}
+}
+
+// readNumber method is exactly the same as readIndentifier except for its 
+// usage of isDigit instead of isLetter.
+func (l *Lexer) readNumber() string {
+	position := l.position
+	for isDigit(l.ch) {
+		l.readChar()
+	}
+	return l.input[position:l.position]
+}
+
+// isDigit function is as simple  as isLetter. It just returns whether
+// the passed in byte is a Latin digit between 0 and 9.
+func isDigit(ch byte) bool {
+	return '0' <= ch && ch <= '9'
 }
 
 // isLetter is a helper function which jsut checks whether the given argument
