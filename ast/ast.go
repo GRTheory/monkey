@@ -22,12 +22,12 @@ type Expression interface {
 // statements. These statememts are contained in the Program.Statements,
 // which is just a slice of AST nodes that implement the Statement interface.
 type Program struct {
-	Statement []Statement
+	Statements []Statement
 }
 
 func (p *Program) TokenLiteral() string {
-	if len(p.Statement) > 0 {
-		return p.Statement[0].TokenLiteral()
+	if len(p.Statements) > 0 {
+		return p.Statements[0].TokenLiteral()
 	} else {
 		return ""
 	}
