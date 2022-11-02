@@ -9,7 +9,7 @@ import (
 // Parser has three fields: l, curToken and peekToken. l is a pointer to an
 // instance of the lexer, on which we repeatedly call NextToken to get the 
 // next token in the input. curToken and peekToken act exactly like the two
-// "pointers" out lexer has: position and ppeekPosition. But instead of pointing
+// "pointers" out lexer has: position and peekPosition. But instead of pointing
 // to a character in the input, they point to the current and the next token.
 // Bothe are important: we nedd to look at the curToken, which is the current
 // token under examination, to decide what to do next, and we also need peekToken
