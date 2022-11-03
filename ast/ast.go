@@ -45,7 +45,7 @@ type LetStatement struct {
 func (ls *LetStatement) statementNode()       {}
 func (ls *LetStatement) TokenLiteral() string { return ls.Token.Literal }
 
-// Identifier holds the identifier of the binding. We have the Identifier 
+// Identifier holds the identifier of the binding. We have the Identifier
 // struct type, which implements the Expression interface.
 type Identifier struct {
 	Token token.Token // the token.IDENT token
@@ -54,3 +54,13 @@ type Identifier struct {
 
 func (i *Identifier) expressionNode()      {}
 func (i *Identifier) TokenLiteral() string { return i.Token.Literal }
+
+// ReturnStatement has a field for the initial token and a ReturnValue field
+// that will contain the expression that's to be returned.
+type ReturnStatement struct {
+	Token       token.Token // the 'return' token
+	ReturnValue Expression
+}
+
+func (rs *ReturnStatement) statementNode()       {}
+func (rs *ReturnStatement) TokenLiteral() string { return rs.Token.Literal }
