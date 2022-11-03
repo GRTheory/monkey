@@ -1,6 +1,8 @@
 package parser
 
 import (
+	"fmt"
+
 	"github.com/GRTheory/monkey/ast"
 	"github.com/GRTheory/monkey/lexer"
 	"github.com/GRTheory/monkey/token"
@@ -15,7 +17,8 @@ import (
 // token under examination, to decide what to do next, and we also need peekToken
 // for this decision if curToken doesn't give us enough information.
 type Parser struct {
-	l *lexer.Lexer
+	l      *lexer.Lexer
+	errors []string
 
 	curToken  token.Token
 	peekToken token.Token
@@ -24,7 +27,10 @@ type Parser struct {
 // New is pretty self-explanatory and the nextToken method is a small helper
 // that advances both curToken and peekToken.
 func New(l *lexer.Lexer) *Parser {
-	p := &Parser{l: l}
+	p := &Parser{
+		l:      l,
+		errors: []string{},
+	}
 
 	// Read two tokens, so curToken and peekToken are both set
 	p.nextToken()
@@ -74,7 +80,7 @@ func (p *Parser) parseLetStatement() *ast.LetStatement {
 		return nil
 	}
 
-	// TODO: We're skipping the expressions until we 
+	// TODO: We're skipping the expressions until we
 	// encounter a semicolon
 	for !p.curTokenIs(token.SEMICOLON) {
 		p.nextToken()
@@ -97,4 +103,14 @@ func (p *Parser) expectPeek(t token.TokenType) bool {
 	} else {
 		return false
 	}
+}
+
+func (p *Parser) Errors() []string {
+	return p.errors
+}
+
+func (p *Parser) peekError(t token.TokenType) {
+	msg := fmt.Sprintf("expected next token to be %s, got %s instead",
+		t, p.peekToken.Type)
+	p.errors = append(p.errors, msg)
 }
