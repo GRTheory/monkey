@@ -86,6 +86,21 @@ func (i *Identifier) expressionNode()      {}
 func (i *Identifier) TokenLiteral() string { return i.Token.Literal }
 func (i *Identifier) String() string       { return i.Value }
 
+// IntegerLiteral fulfills the ast.Expression interface, just like
+// *ast.Identifier does, but there's a notable difference to ast.Identifier
+// in the structure itself: Value is an int64 and not a string. This
+// is the field that's going to contain the actual value the integer
+// literal represents in the source code.
+type IntegerLiteral struct {
+	Token token.Token
+	Value int64
+}
+
+func (il *IntegerLiteral) expressionNode()      {}
+func (il *IntegerLiteral) TokenLiteral() string { return il.Token.Literal }
+func (il *IntegerLiteral) String() string       { return il.Token.Literal }
+
+
 // ReturnStatement has a field for the initial token and a ReturnValue field
 // that will contain the expression that's to be returned.
 type ReturnStatement struct {
@@ -99,7 +114,7 @@ func (rs *ReturnStatement) String() string {
 	var out bytes.Buffer
 
 	out.WriteString(rs.TokenLiteral() + " ")
-	
+
 	if rs.ReturnValue != nil {
 		out.WriteString(rs.ReturnValue.String())
 	}
