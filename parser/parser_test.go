@@ -151,8 +151,8 @@ func testIdentifier(t *testing.T, exp ast.Expression, value string) bool {
 }
 
 func testLiteralExpression(t *testing.T,
-						exp ast.Expression, 
-						expected interface{}) bool {
+	exp ast.Expression,
+	expected interface{}) bool {
 	switch v := expected.(type) {
 	case int:
 		return testIntegerLiteral(t, exp, int64(v))
@@ -167,27 +167,27 @@ func testLiteralExpression(t *testing.T,
 
 func testInfixExpression(t *testing.T, exp ast.Expression, left interface{},
 	operator string, right interface{}) bool {
-		opExp, ok := exp.(*ast.InfixExpression)
-		if !ok {
-			t.Errorf("exp is not ast.OperatorExpression. got=%T(%s)", exp, exp)
-			return false
-		}
-
-		if !testLiteralExpression(t, opExp.Left, left){
-			return false
-		}
-
-		if opExp.Operator != operator{
-			t.Errorf("exp.Operator is not '%s'. got=%q", operator, opExp.Operator)
-			return false
-		}
-
-		if !testLiteralExpression(t, opExp.Right, right) {
-			return false
-		}
-
-		return true
+	opExp, ok := exp.(*ast.InfixExpression)
+	if !ok {
+		t.Errorf("exp is not ast.OperatorExpression. got=%T(%s)", exp, exp)
+		return false
 	}
+
+	if !testLiteralExpression(t, opExp.Left, left) {
+		return false
+	}
+
+	if opExp.Operator != operator {
+		t.Errorf("exp.Operator is not '%s'. got=%q", operator, opExp.Operator)
+		return false
+	}
+
+	if !testLiteralExpression(t, opExp.Right, right) {
+		return false
+	}
+
+	return true
+}
 
 func TestIntegerLiteralExpression(t *testing.T) {
 	input := "5;"
@@ -312,6 +312,51 @@ func TestParsingInfixExpressions(t *testing.T) {
 
 		if !testIntegerLiteral(t, exp.Right, tt.rightValue) {
 			return
+		}
+	}
+}
+
+func TestOperatorPrecedenceParsing(t *testing.T) {
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{
+			"1 + (2 + 3) + 4",
+			"((1 + (2 + 3)) + 4)",
+		},
+		{
+			"(5 + 5) * 2",
+			"((5 + 5) * 2)",
+		},
+		{
+			"2 / (5 + 5)",
+			"(2 / (5 + 5))",
+		},
+		{
+			"-(5 + 5)",
+			"(-(5 + 5))",
+		},
+		{
+			"!(true == true)",
+			"(!(true == true))",
+		},
+		{
+			"(2 * 6) + 2",
+			"((2 * 6) + 2)",
+		},
+	}
+
+	for _, tt := range tests {
+		l := lexer.New(tt.input)
+		p := New(l)
+		program := p.ParseProgram()
+		checkParserErrors(t, p)
+
+		actual := program.String()
+
+		if actual != tt.expected {
+			t.Errorf("expected=%q, got=%q", tt.expected, actual)
 		}
 	}
 }
