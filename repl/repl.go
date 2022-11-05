@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/GRTheory/monkey/evaluator"
 	"github.com/GRTheory/monkey/lexer"
 	"github.com/GRTheory/monkey/parser"
 )
@@ -38,14 +39,21 @@ func Start(in io.Reader, out io.Writer) {
 		line := scanner.Text()
 		l := lexer.New(line)
 		p := parser.New(l)
+
 		program := p.ParseProgram()
 		if len(p.Errors()) != 0 {
 			printParserErrors(out, p.Errors())
 			continue
 		}
 
-		io.WriteString(out, program.String())
-		io.WriteString(out, "\n")
+		evaluated := evaluator.Eval(program)
+		if evaluated != nil {
+			io.WriteString(out, evaluated.Inspect())
+			io.WriteString(out, "\n")
+		}
+
+		// io.WriteString(out, program.String())
+		// io.WriteString(out, "\n")
 
 		// for tok := l.NextToken(); tok.Type != token.EOF; tok = l.NextToken() {
 		// 	fmt.Printf("%+v\n", tok)
