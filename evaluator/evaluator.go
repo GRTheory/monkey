@@ -133,3 +133,16 @@ func evalIntegerInfixExpression(
 		return NULL
 	}
 }
+
+func isTrythy(obj object.Object) bool {
+    switch obj{
+    case NULL:
+        return false
+    case TRUE:
+        return true
+    case FALSE:
+        return false
+    default:
+        return true
+    }
+}
