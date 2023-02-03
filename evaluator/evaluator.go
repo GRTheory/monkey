@@ -16,7 +16,7 @@ func Eval(node ast.Node) object.Object {
 
 	// Statements
 	case *ast.Program:
-		return evalStatements(node.Statements)
+		return evalProgram(node)
 
 	case *ast.ExpressionStatement:
 		return Eval(node.Expression)
@@ -29,7 +29,7 @@ func Eval(node ast.Node) object.Object {
 		return nativeBoolToBooleanObject(node.Value)
 
 	case *ast.BlockStatement:
-		return evalStatements(node.Statements)
+		return evalBlockStatement(node)
 
 	case *ast.IfExpression:
 		return evalIfExpression(node)
@@ -62,10 +62,29 @@ func evalIfExpression(ie *ast.IfExpression) object.Object {
 	}
 }
 
-func evalStatements(stmts []ast.Statement) object.Object {
+// evalBlockStatement explicitly doesn't unwrap the return value and 
+// only check the Type() of each evaluation result. If it's object.
+// RETURN_VALUE_OBJ we simply return the *object.ReturnValue, without
+// unwrapping its .Value, so it stops execution in a possible outer block 
+// statement and bubbles up the evalProgram, where it finally get's unwrapped.
+func evalBlockStatement(block *ast.BlockStatement) object.Object {
 	var result object.Object
 
-	for _, statement := range stmts {
+	for _, statement := range block.Statements {
+		result = Eval(statement)
+
+		if result != nil && result.Type() == object.RETURN_VALUE_OBJ {
+			return result
+		}
+	}
+
+	return result
+}
+
+func evalProgram(program *ast.Program) object.Object {
+	var result object.Object
+
+	for _, statement := range program.Statements {
 		result = Eval(statement)
 
 		if returnValue, ok := result.(*object.ReturnValue); ok {
