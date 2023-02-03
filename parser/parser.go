@@ -370,7 +370,6 @@ func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
 	for p.curTokenIs(token.SEMICOLON) {
 		p.nextToken()
 	}
-
 	return stmt
 }
 
@@ -404,7 +403,6 @@ func (p *Parser) parseExpression(precedence int) ast.Expression {
 
 		leftExp = infix(leftExp)
 	}
-
 	return leftExp
 }
 
